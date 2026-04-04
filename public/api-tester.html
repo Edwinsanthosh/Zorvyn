@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Zorvyn API Tester</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <div class="brand">
+          <p class="brand-tag">Zorvyn</p>
+        </div>
+
+        <div class="sidebar-box">
+          <p class="box-title">Current Auth</p>
+          <p id="currentUserText">No user logged in</p>
+          <p id="currentTokenText" class="token-preview">No token stored</p>
+          <div class="sidebar-actions">
+            <button id="clearTokenButton" class="secondary-button">Clear Token</button>
+          </div>
+        </div>
+
+        <div class="sidebar-box">
+          <p class="box-title">Quick Login</p>
+          <button class="quick-login" data-email="arun@example.com" data-password="arun123">
+            Viewer Login
+          </button>
+          <button class="quick-login" data-email="kavin@example.com" data-password="kavin123">
+            Analyst Login
+          </button>
+          <button class="quick-login" data-email="nivetha@example.com" data-password="nivetha123">
+            Admin Login
+          </button>
+        </div>
+
+        <nav class="sidebar-nav">
+          <a href="./index.html">Home</a>
+          <a href="./tests.html">Visual Testcases</a>
+          <a href="./api-tester.html">Custom API Tester</a>
+        </nav>
+      </aside>
+
+      <main class="main-content">
+        <header class="hero-card">
+          <div>
+            <p class="small-label">Page 2</p>
+            <h2>Manual API testing with toggle rows</h2>
+            <p class="hero-copy">
+              APIs are grouped by CRUD flow. Expand a row only when you want the full form and that API's result box.
+            </p>
+          </div>
+        </header>
+
+        <section class="panel">
+          <div class="panel-head">
+            <div>
+              <p class="small-label">Section 1</p>
+              <h3>Auth APIs</h3>
+            </div>
+          </div>
+
+          <div class="toggle-api-list">
+            <details class="toggle-api-item">
+              <summary class="toggle-api-summary">
+                <span class="method get">GET</span>
+                <span class="path">/api</span>
+                <span class="summary-text">Check backend health</span>
+              </summary>
+              <div class="toggle-api-body">
+                <p class="api-copy">Use this first to confirm the backend is responding.</p>
+                <button id="pingApiButton" class="try-button">Try it out</button>
+                <pre id="pingResult" class="endpoint-result">Waiting for request...</pre>
+              </div>
+            </details>
+
+            <details class="toggle-api-item">
+              <summary class="toggle-api-summary">
+                <span class="method post">POST</span>
+                <span class="path">/api/auth/register</span>
+                <span class="summary-text">Create a new user</span>
+              </summary>
+              <div class="toggle-api-body">
+                <form id="registerForm" class="api-form">
+                  <input type="text" id="registerName" placeholder="name" required />
+                  <input type="email" id="registerEmail" placeholder="email" required />
+                  <input type="password" id="registerPassword" placeholder="password" required />
+                  <select id="registerRole">
+                    <option value="Viewer">Viewer</option>
+                    <option value="Analyst">Analyst</option>
+                    <option value="Admin">Admin</option>
+                  </select>
+                  <button type="submit" class="try-button">Register</button>
+                </form>
+                <pre id="registerResult" class="endpoint-result">Waiting for request...</pre>
+              </div>
+            </details>
+
+            <details class="toggle-api-item">
+              <summary class="toggle-api-summary">
+                <span class="method post">POST</span>
+                <span class="path">/api/auth/login</span>
+                <span class="summary-text">Login and store JWT</span>
+              </summary>
+              <div class="toggle-api-body">
+                <form id="loginForm" class="api-form small-form">
+                  <input type="email" id="loginEmail" placeholder="email" required />
+                  <input type="password" id="loginPassword" placeholder="password" required />
+                  <button type="submit" class="try-button">Login</button>
+                </form>
+                <pre id="loginResult" class="endpoint-result">Waiting for request...</pre>
+              </div>
+            </details>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-head">
+            <div>
+              <p class="small-label">Section 2</p>
+              <h3>Read APIs</h3>
+            </div>
+          </div>
+
+          <div class="toggle-api-list">
+            <details class="toggle-api-item">
+              <summary class="toggle-api-summary">
+                <span class="method get">GET</span>
+                <span class="path">/api/dashboard/summary</span>
+                <span class="summary-text">Read dashboard summary</span>
+              </summary>
+              <div class="toggle-api-body">
+                <button id="summaryButton" class="try-button">Load Summary</button>
+                <pre id="summaryResult" class="endpoint-result">Waiting for request...</pre>
+              </div>
+            </details>
+
+            <details class="toggle-api-item">
+              <summary class="toggle-api-summary">
+                <span class="method get">GET</span>
+                <span class="path">/api/dashboard/categories</span>
+                <span class="summary-text">Read category totals</span>
+              </summary>
+              <div class="toggle-api-body">
+                <button id="categoriesButton" class="try-button">Load Categories</button>
+                <pre id="categoriesResult" class="endpoint-result">Waiting for request...</pre>
+              </div>
+            </details>
+
+            <details class="toggle-api-item">
+              <summary class="toggle-api-summary">
+                <span class="method get">GET</span>
+                <span class="path">/api/dashboard/recent-activity</span>
+                <span class="summary-text">Read latest activity</span>
+              </summary>
+              <div class="toggle-api-body">
+                <form id="recentActivityForm" class="api-form small-form">
+                  <input type="number" id="recentLimit" placeholder="limit" min="1" value="5" />
+                  <button type="submit" class="try-button">Load Activity</button>
+                </form>
+                <pre id="recentResult" class="endpoint-result">Waiting for request...</pre>
+              </div>
+            </details>
+
+            <details class="toggle-api-item">
+              <summary class="toggle-api-summary">
+                <span class="method get">GET</span>
+                <span class="path">/api/dashboard/trends</span>
+                <span class="summary-text">Read monthly or weekly trends</span>
+              </summary>
+              <div class="toggle-api-body">
+                <form id="trendsForm" class="api-form small-form">
+                  <select id="trendType">
+                    <option value="monthly">monthly</option>
+                    <option value="weekly">weekly</option>
+                  </select>
+                  <button type="submit" class="try-button">Load Trends</button>
+                </form>
+                <pre id="trendsResult" class="endpoint-result">Waiting for request...</pre>
+              </div>
+            </details>
+
+            <details class="toggle-api-item">
+              <summary class="toggle-api-summary">
+                <span class="method get">GET</span>
+                <span class="path">/api/records</span>
+                <span class="summary-text">Read records with pagination</span>
+              </summary>
+              <div class="toggle-api-body">
+                <p class="api-copy">Use the fields below to test pagination, category filter, type filter, exact date, date range, and amount range.</p>
+                <form id="recordsListForm" class="api-form">
+                  <label class="field-group">
+                    <span>Page</span>
+                    <input type="number" id="listPage" placeholder="page" min="1" value="1" />
+                  </label>
+                  <label class="field-group">
+                    <span>Limit</span>
+                    <input type="number" id="listLimit" placeholder="limit" min="1" value="5" />
+                  </label>
+                  <label class="field-group">
+                    <span>Category Filter</span>
+                    <input type="text" id="listCategory" placeholder="Revenue" />
+                  </label>
+                  <label class="field-group">
+                    <span>Type Filter</span>
+                    <select id="listType">
+                      <option value="">all types</option>
+                      <option value="income">income</option>
+                      <option value="expense">expense</option>
+                    </select>
+                  </label>
+                  <label class="field-group">
+                    <span>Exact Date Filter</span>
+                    <input type="date" id="listDate" />
+                  </label>
+                  <label class="field-group">
+                    <span>From Date</span>
+                    <input type="date" id="listFromDate" />
+                  </label>
+                  <label class="field-group">
+                    <span>To Date</span>
+                    <input type="date" id="listToDate" />
+                  </label>
+                  <label class="field-group">
+                    <span>Min Amount</span>
+                    <input type="number" id="listMinAmount" placeholder="1000" min="0" />
+                  </label>
+                  <label class="field-group">
+                    <span>Max Amount</span>
+                    <input type="number" id="listMaxAmount" placeholder="50000" min="0" />
+                  </label>
+                  <button type="submit" class="try-button">List Records</button>
+                </form>
+                <pre id="recordsListResult" class="endpoint-result">Waiting for request...</pre>
+              </div>
+            </details>
+
+            <details class="toggle-api-item">
+              <summary class="toggle-api-summary">
+                <span class="method get">GET</span>
+                <span class="path">/api/records/:id</span>
+                <span class="summary-text">Read one record by id</span>
+              </summary>
+              <div class="toggle-api-body">
+                <form id="recordOneForm" class="api-form small-form">
+                  <input type="text" id="recordOneId" placeholder="record id" required />
+                  <button type="submit" class="try-button">Get Record</button>
+                </form>
+                <pre id="recordOneResult" class="endpoint-result">Waiting for request...</pre>
+              </div>
+            </details>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-head">
+            <div>
+              <p class="small-label">Section 3</p>
+              <h3>Create APIs</h3>
+            </div>
+          </div>
+
+          <div class="toggle-api-list">
+            <details class="toggle-api-item">
+              <summary class="toggle-api-summary">
+                <span class="method post">POST</span>
+                <span class="path">/api/records</span>
+                <span class="summary-text">Create a financial record</span>
+              </summary>
+              <div class="toggle-api-body">
+                <form id="recordCreateForm" class="api-form">
+                  <input type="text" id="createTitle" placeholder="title" required />
+                  <input type="text" id="createCategory" placeholder="category" required />
+                  <input type="number" id="createAmount" placeholder="amount" required />
+                  <select id="createType">
+                    <option value="income">income</option>
+                    <option value="expense">expense</option>
+                  </select>
+                  <input type="date" id="createDate" required />
+                  <input type="text" id="createNote" placeholder="note" />
+                  <button type="submit" class="try-button">Create Record</button>
+                </form>
+                <pre id="recordCreateResult" class="endpoint-result">Waiting for request...</pre>
+              </div>
+            </details>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-head">
+            <div>
+              <p class="small-label">Section 4</p>
+              <h3>Update APIs</h3>
+            </div>
+          </div>
+
+          <div class="toggle-api-list">
+            <details class="toggle-api-item">
+              <summary class="toggle-api-summary">
+                <span class="method put">PUT</span>
+                <span class="path">/api/records/:id</span>
+                <span class="summary-text">Update one record</span>
+              </summary>
+              <div class="toggle-api-body">
+                <form id="recordUpdateForm" class="api-form">
+                  <input type="text" id="updateId" placeholder="record id" required />
+                  <input type="text" id="updateTitle" placeholder="title" required />
+                  <input type="text" id="updateCategory" placeholder="category" required />
+                  <input type="number" id="updateAmount" placeholder="amount" required />
+                  <select id="updateType">
+                    <option value="income">income</option>
+                    <option value="expense">expense</option>
+                  </select>
+                  <input type="date" id="updateDate" required />
+                  <input type="text" id="updateNote" placeholder="note" />
+                  <button type="submit" class="try-button">Update Record</button>
+                </form>
+                <pre id="recordUpdateResult" class="endpoint-result">Waiting for request...</pre>
+              </div>
+            </details>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-head">
+            <div>
+              <p class="small-label">Section 5</p>
+              <h3>Delete APIs</h3>
+            </div>
+          </div>
+
+          <div class="toggle-api-list">
+            <details class="toggle-api-item">
+              <summary class="toggle-api-summary">
+                <span class="method delete">DELETE</span>
+                <span class="path">/api/records/:id</span>
+                <span class="summary-text">Soft delete one record</span>
+              </summary>
+              <div class="toggle-api-body">
+                <form id="recordDeleteForm" class="api-form small-form">
+                  <input type="text" id="deleteId" placeholder="record id" required />
+                  <button type="submit" class="try-button danger-button">Delete Record</button>
+                </form>
+                <pre id="recordDeleteResult" class="endpoint-result">Waiting for request...</pre>
+              </div>
+            </details>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script src="./api-tester.js"></script>
+  </body>
+</html>

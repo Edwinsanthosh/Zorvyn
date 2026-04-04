@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Zorvyn Visual Tests</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <div class="brand">
+          <p class="brand-tag">Zorvyn</p>
+        </div>
+
+        <div class="sidebar-box">
+          <p class="box-title">Current Auth</p>
+          <p id="currentUserText">No user logged in</p>
+          <p id="currentTokenText" class="token-preview">No token stored</p>
+          <div class="sidebar-actions">
+            <button id="clearTokenButton" class="secondary-button">Clear Token</button>
+            <button id="pingApiButton" class="secondary-button">Ping API</button>
+          </div>
+        </div>
+
+        <div class="sidebar-box">
+          <p class="box-title">Demo Accounts</p>
+          <button class="quick-login" data-email="arun@example.com" data-password="arun123">
+            Viewer Login
+          </button>
+          <button class="quick-login" data-email="kavin@example.com" data-password="kavin123">
+            Analyst Login
+          </button>
+          <button class="quick-login" data-email="nivetha@example.com" data-password="nivetha123">
+            Admin Login
+          </button>
+        </div>
+
+        <nav class="sidebar-nav">
+          <a href="./index.html">Home</a>
+          <a href="./tests.html">Visual Testcases</a>
+          <a href="./api-tester.html">Custom API Tester</a>
+        </nav>
+      </aside>
+
+      <main class="main-content">
+        <header class="hero-card">
+          <div>
+            <p class="small-label">Page 1</p>
+            <h2>Frontend visual test runner</h2>
+            <p class="hero-copy">
+              Use this page when you want a clean pass or fail view for the prepared testcase flows.
+            </p>
+          </div>
+          <div class="hero-actions">
+            <button id="runAllTestsButton">Run All Testcases</button>
+            <button id="resetTestViewButton" class="secondary-button">Reset View</button>
+          </div>
+        </header>
+
+        <div class="content-layout">
+          <div class="content-left">
+            <section class="panel">
+              <div class="panel-head">
+                <div>
+                  <p class="small-label">Section 1</p>
+                  <h3>Visual Testcases</h3>
+                </div>
+                <div class="summary-strip">
+                  <span id="testSummary">0 / 0 done</span>
+                  <span id="passSummary" class="mini-pill neutral-pill">0 passed</span>
+                  <span id="failSummary" class="mini-pill neutral-pill">0 failed</span>
+                </div>
+              </div>
+              <div id="testCasesGrid" class="test-grid"></div>
+            </section>
+          </div>
+
+          <aside class="content-right">
+            <section class="panel response-panel">
+              <div class="panel-head">
+                <div>
+                  <p class="small-label">Section 2</p>
+                  <h3>Latest Response</h3>
+                </div>
+                <span id="statusBadge" class="status-badge neutral">Waiting</span>
+              </div>
+              <p id="messageLine" class="message-line">No request sent yet.</p>
+              <pre id="responseBox" class="response-box">Responses will appear here...</pre>
+            </section>
+          </aside>
+        </div>
+      </main>
+    </div>
+
+    <script src="./tests.js"></script>
+  </body>
+</html>

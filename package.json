@@ -1,0 +1,29 @@
+{
+  "name": "finance-dashboard-backend",
+  "version": "1.0.0",
+  "description": "Simple backend for a finance dashboard system",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js",
+    "test": "node tests/runTests.js"
+  },
+  "keywords": [
+    "finance",
+    "dashboard",
+    "backend",
+    "student-project"
+  ],
+  "author": "student-style",
+  "license": "ISC",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.6.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.0"
+  }
+}
