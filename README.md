@@ -1,84 +1,113 @@
 # Finance Dashboard Backend
 
-This is a simple backend project for a finance dashboard system.
+A simple finance dashboard backend built with `Node.js`, `Express`, `MongoDB`, and `Mongoose`.
 
-The project is made in a basic way on purpose. The code is kept easy to read and easy to explain, like a student project for practice or placements.
+This project is intentionally kept practical and easy to follow. It includes authentication, role-based access, finance record CRUD, dashboard summary APIs, basic validation, seeded demo data, and a small frontend for testing APIs visually.
 
-## Tech Used
+## Stack
 
-- Node.js
-- Express.js
-- JSON Web Token (JWT)
-- MongoDB
-- Mongoose
+- `Node.js`
+- `Express.js`
+- `MongoDB`
+- `Mongoose`
+- `JWT`
+- `bcryptjs`
 
-## Features
+## Main Features
 
+- JWT-based register and login
+- Passwords stored in hashed format using `bcryptjs`
 - User roles:
-  - Viewer
-  - Analyst
-  - Admin
-- User management for Admin
-- User status management using active and inactive
-- Login with JWT
-- Financial records CRUD
-- Dashboard summary
-- Simple role-based middleware
-- Basic validation
-- Basic pagination in records list
-- Soft delete for financial records
-- Simple rate limiting
-- Simple frontend to view API output
-- Basic unit tests for validation and controller logic
+  - `Viewer`
+  - `Analyst`
+  - `Admin`
+- User management for admins
+- User status support:
+  - `active`
+  - `inactive`
+- Financial record CRUD
+- Soft delete for records
+- Dashboard aggregation APIs
+- Role-based route protection
+- Basic request validation
+- Pagination for records
+- Filtering for records
+- In-memory rate limiting
+- Seed data for users and records
+- Lightweight test runner
+- Frontend pages for:
+  - visual testcase view
+  - custom API testing
 
 ## Project Structure
 
 ```text
 config/
   db.js
+
+public/
+  index.html
+  tests.html
+  tests.js
+  api-tester.html
+  api-tester.js
+  styles.css
+
 src/
   app.js
   server.js
   controllers/
     authController.js
-    recordController.js
     dashboardController.js
+    recordController.js
+    userController.js
+  data/
+    seedData.js
   middleware/
     authMiddleware.js
     rateLimitMiddleware.js
     roleMiddleware.js
     validationMiddleware.js
   models/
-    User.js
     FinancialRecord.js
+    User.js
   routes/
     authRoutes.js
-    recordRoutes.js
     dashboardRoutes.js
-public/
-  index.html
-  styles.css
-  app.js
+    recordRoutes.js
+    userRoutes.js
+
+tests/
+  helpers.js
+  runTests.js
 ```
 
-## How to Run
+## Setup
 
-1. Install packages:
+Install dependencies:
 
 ```bash
 npm install
 ```
 
-2. Start the server:
+Create a `.env` file:
 
-```bash
-npm start
+```env
+PORT=5000
+MONGODB_URL=mongodb://127.0.0.1:27017/zorvyn
+JWT_SECRET=simple_secret_key
 ```
 
-For development:
+Run in development:
 
 ```bash
 npm run dev
+```
+
+Run in normal mode:
+
+```bash
+npm start
 ```
 
 Run tests:
@@ -87,92 +116,28 @@ Run tests:
 npm test
 ```
 
-Server will run on:
+Server default URL:
 
-```bash
+```text
 http://localhost:5000
 ```
 
-Open this in browser to use the frontend:
+## Frontend Pages
 
-```bash
-http://localhost:5000
-```
+The backend also serves a small frontend from the `public` folder.
 
-## Environment File
+- Home page:
+  - `http://localhost:5000/`
+- Visual testcase page:
+  - `http://localhost:5000/tests.html`
+- Custom API tester page:
+  - `http://localhost:5000/api-tester.html`
 
-Create a `.env` file like this:
+## Authentication
 
-```env
-PORT=5000
-MONGODB_URL=mongodb://127.0.0.1:27017/zorvyn
-JWT_SECRET=simple_secret_key
-```
+### Register
 
-## Demo Login Users
-
-Sample users are added automatically when the database is empty.
-
-Example users:
-
-| Role | Email | Password |
-|------|-------|----------|
-| Viewer | arun@example.com | arun123 |
-| Analyst | kavin@example.com | kavin123 |
-| Admin | nivetha@example.com | nivetha123 |
-
-You can also create more users using the register API.
-
-## Sample Financial Records
-
-Some sample finance records are also added automatically on first run.
-
-## API Endpoints
-
-### 1. Auth
-
-#### `POST /api/auth/register`
-
-Request body:
-
-```json
-{
-  "name": "Edwin",
-  "email": "edwin@example.com",
-  "password": "edwin123",
-  "role": "Viewer"
-}
-```
-
-Notes:
-
-- `role` is optional
-- if `role` is not passed, user will be created as `Viewer`
-
-#### `POST /api/auth/login`
-
-Request body:
-
-```json
-{
-  "email": "admin@example.com",
-  "password": "admin123"
-}
-```
-
-Inactive users cannot log in.
-
-### 2. User Management
-
-All user management routes need Admin access.
-
-#### `GET /api/users`
-
-Returns all users without passwords.
-
-#### `POST /api/users`
-
-Creates a new user.
+`POST /api/auth/register`
 
 Sample body:
 
@@ -181,14 +146,86 @@ Sample body:
   "name": "Meena",
   "email": "meena@example.com",
   "password": "meena123",
+  "role": "Viewer"
+}
+```
+
+Notes:
+
+- `role` is optional
+- default role is `Viewer`
+- password is hashed before saving
+
+### Login
+
+`POST /api/auth/login`
+
+Sample body:
+
+```json
+{
+  "email": "nivetha@example.com",
+  "password": "nivetha123"
+}
+```
+
+Notes:
+
+- inactive users cannot log in
+- successful login returns JWT token and user details
+
+## Roles
+
+### Viewer
+
+- can view only their own records
+- can view dashboard data based on only their own records
+- cannot create, update, or delete records
+
+### Analyst
+
+- can view records
+- can create records
+- can update records
+- cannot delete records
+
+### Admin
+
+- full record access
+- can delete records
+- can manage users
+
+## User Management APIs
+
+All user management routes require `Admin` role.
+
+### Get all users
+
+`GET /api/users`
+
+Returns all users without passwords.
+
+### Create user by admin
+
+`POST /api/users`
+
+Sample body:
+
+```json
+{
+  "name": "Priya",
+  "email": "priya@example.com",
+  "password": "priya123",
   "role": "Analyst",
   "status": "active"
 }
 ```
 
-#### `PATCH /api/users/:id/role`
+### Update user role
 
-Updates user role.
+`PATCH /api/users/:id/role`
+
+Sample body:
 
 ```json
 {
@@ -196,9 +233,11 @@ Updates user role.
 }
 ```
 
-#### `PATCH /api/users/:id/status`
+### Update user status
 
-Updates user status.
+`PATCH /api/users/:id/status`
+
+Sample body:
 
 ```json
 {
@@ -206,149 +245,219 @@ Updates user status.
 }
 ```
 
-### 3. Financial Records
+## Financial Record APIs
 
-All record routes need `Authorization: Bearer <token>`
+All record routes require:
 
-#### `GET /api/records`
+```text
+Authorization: Bearer <token>
+```
 
-Optional query:
+### Get all records
+
+`GET /api/records`
+
+Supports pagination:
 
 - `page`
 - `limit`
 
+Supports filtering:
+
+- `category`
+- `type`
+- `date`
+- `fromDate`
+- `toDate`
+- `minAmount`
+- `maxAmount`
+
 Example:
 
-```bash
-GET /api/records?page=1&limit=5
+```text
+/api/records?page=1&limit=5&type=income&fromDate=2026-04-01&toDate=2026-04-10
 ```
 
-#### `GET /api/records/:id`
+### Get one record
 
-#### `POST /api/records`
+`GET /api/records/:id`
+
+### Create record
+
+`POST /api/records`
 
 Allowed roles:
 
-- Analyst
-- Admin
+- `Analyst`
+- `Admin`
 
 Sample body:
 
 ```json
 {
-  "title": "New Revenue",
+  "title": "April Revenue",
   "category": "Revenue",
-  "amount": 4500,
+  "amount": 45000,
   "type": "income",
-  "date": "2026-04-03",
-  "note": "April entry"
+  "date": "2026-04-04",
+  "note": "Collected from branch"
 }
 ```
 
-#### `PUT /api/records/:id`
+### Update record
+
+`PUT /api/records/:id`
 
 Allowed roles:
 
-- Analyst
-- Admin
+- `Analyst`
+- `Admin`
 
-#### `DELETE /api/records/:id`
+### Delete record
+
+`DELETE /api/records/:id`
 
 Allowed role:
 
-- Admin
+- `Admin`
 
-This route does soft delete.
-The record stays in database, but `isDeleted` becomes `true`.
+This is a soft delete. The document stays in the database, but:
 
-Viewer users can only see their own records.
-Analyst and Admin can see all records.
+- `isDeleted` becomes `true`
+- `deletedAt` is set
 
-### 4. Dashboard
+## Dashboard APIs
 
-#### `GET /api/dashboard/summary`
+All dashboard routes require login.
 
-This returns:
+### Summary
 
-- total records
+`GET /api/dashboard/summary`
+
+Returns values like:
+
 - total income
 - total expense
 - total balance
+- total records
 - category breakdown
 
-#### `GET /api/dashboard/categories`
+### Category totals
 
-This returns category-wise totals with:
+`GET /api/dashboard/categories`
 
-- income per category
-- expense per category
-- combined total per category
+Returns totals grouped by category.
 
-#### `GET /api/dashboard/recent-activity`
+### Recent activity
+
+`GET /api/dashboard/recent-activity`
 
 Optional query:
 
 - `limit`
 
-Example:
+### Trends
 
-```bash
-GET /api/dashboard/recent-activity?limit=5
-```
-
-This returns the latest records for dashboard activity section.
-
-#### `GET /api/dashboard/trends`
+`GET /api/dashboard/trends`
 
 Optional query:
 
 - `type=monthly`
 - `type=weekly`
 
-Example:
+## Validation
+
+Basic request validation is implemented in `validationMiddleware`.
+
+It checks fields like:
+
+- required fields
+- email format
+- password length
+- valid role values
+- valid status values
+- non-empty title and category
+- non-negative amount
+- valid date values
+
+There is also basic Mongoose schema validation in the models.
+
+## Seed Data
+
+Seed data is added automatically when the database is empty.
+
+### Demo Users
+
+| Role | Status | Email | Password |
+|------|--------|-------|----------|
+| Viewer | active | arun@example.com | arun123 |
+| Viewer | active | meena@example.com | meena123 |
+| Analyst | active | kavin@example.com | kavin123 |
+| Analyst | active | priya@example.com | priya123 |
+| Admin | active | nivetha@example.com | nivetha123 |
+| Admin | inactive | suresh@example.com | suresh123 |
+
+### Seeded Records
+
+The project seeds multiple finance records across:
+
+- revenue
+- office expense
+- operations
+- tools
+- marketing
+- equipment
+- training
+- services
+
+This helps with:
+
+- dashboard totals
+- trend data
+- pagination
+- filtering demos
+- role-based record visibility
+
+## Tests
+
+This project includes a lightweight custom test runner.
+
+Run:
 
 ```bash
-GET /api/dashboard/trends?type=monthly
+npm test
 ```
 
-This returns trend data for:
+The tests cover areas like:
 
-- income
-- expense
-- balance
-
-## Role Access Summary
-
-- Viewer:
-  - Can see only own records
-  - Can see dashboard summary only for own records
-- Analyst:
-  - Can see all records
-  - Can add and update records
-  - Can see dashboard summary
-- Admin:
-  - Full access
-  - Can manage users
-  - Can update user role and active status
-
-## Assumptions
-
-- This project is for learning/demo purpose.
-- MongoDB is running locally on `mongodb://127.0.0.1:27017`.
-- Authentication is basic and not production-ready.
-- Passwords are stored in hashed format using `bcryptjs`.
-
-## Limitations
-
-- No refresh token support.
-- Validation is basic and can be improved.
-- Only basic unit tests are added. Full integration tests are not added yet.
-- Error handling is simple and not centralized.
-- Rate limiting is stored in memory, so it resets when server restarts.
-- Soft deleted records are hidden from normal APIs, but there is no restore API yet.
-- Old databases created before ownership support may need reseeding or manual update for record user links.
+- register and login validation
+- invalid role checks
+- duplicate user flow
+- dashboard summary logic
+- recent activity
+- trends
+- pagination shape
+- missing record handling
+- soft delete behavior
+- role-based access behavior
 
 ## Notes
 
-- The code is intentionally kept simple instead of highly optimized.
-- Some decisions are basic on purpose so the project feels realistic for a student-level backend.
+- Viewers only see their own records because records are linked to a user.
+- Analysts and admins can view broader data based on route rules.
+- Passwords are hashed before storing in MongoDB.
+- Rate limiting is simple and stored in memory.
+- The frontend is only for demo/testing and is not a production UI.
+
+## Limitations
+
+- No refresh token flow
+- No centralized error handler
+- No restore API for soft-deleted records
+- Rate limiting resets when the server restarts
+- Tests are lightweight and not full DB integration tests
+- Date is stored as a string in records, which is simple for demo use but not ideal for larger real-world systems
+
+## Developer Notes
+
+This project is written in a clean but simple style. The goal was to keep the code readable and easy to explain in interviews, demos, or academic presentations without adding unnecessary architecture.
