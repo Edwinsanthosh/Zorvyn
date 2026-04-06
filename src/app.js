@@ -7,11 +7,14 @@ const authRoutes = require("./routes/authRoutes");
 const recordRoutes = require("./routes/recordRoutes");
 const dashboardRoutes = require("./routes/dashboardRoutes");
 const userRoutes = require("./routes/userRoutes");
+const { notFoundMiddleware, errorMiddleware } = require("./middleware/errorMiddleware");
+const setupSwagger = require("../config/swagger");
 
 const app = express();
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "..", "public")));
+setupSwagger(app);
 
 // This is a simple custom rate limiter to avoid too many requests in demo project.
 app.use("/api/auth", rateLimitMiddleware({ windowMs: 60 * 1000, maxRequests: 10 }));
@@ -29,11 +32,7 @@ app.use("/api/records", recordRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/users", userRoutes);
 
-// Keeping this simple because project size is small.
-app.use((req, res) => {
-  res.status(404).json({
-    message: "Route not found"
-  });
-});
+app.use(notFoundMiddleware);
+app.use(errorMiddleware);
 
 module.exports = app;

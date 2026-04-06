@@ -1,4 +1,5 @@
 const FinancialRecord = require("../models/FinancialRecord");
+const createError = require("../utils/createError");
 
 function getRecordFilter(req, extraFilter = {}) {
   if (req.user && req.user.role === "Viewer") {
@@ -68,7 +69,7 @@ function buildAppliedFilters(req) {
   };
 }
 
-async function getAllRecords(req, res) {
+async function getAllRecords(req, res, next) {
   try {
     const page = Number(req.query.page) || 1;
     const limit = Number(req.query.limit) || 5;
@@ -90,13 +91,11 @@ async function getAllRecords(req, res) {
       data: paginatedRecords
     });
   } catch (error) {
-    res.status(500).json({
-      message: "Could not fetch records"
-    });
+    next(createError("Could not fetch records"));
   }
 }
 
-async function getSingleRecord(req, res) {
+async function getSingleRecord(req, res, next) {
   try {
     const record = await FinancialRecord.findOne(getRecordFilter(req, {
       _id: req.params.id,
@@ -104,20 +103,16 @@ async function getSingleRecord(req, res) {
     }));
 
     if (!record) {
-      return res.status(404).json({
-        message: "Record not found"
-      });
+      return next(createError("Record not found", 404));
     }
 
     res.json(record);
   } catch (error) {
-    res.status(400).json({
-      message: "Invalid record id"
-    });
+    next(createError("Invalid record id", 400));
   }
 }
 
-async function createRecord(req, res) {
+async function createRecord(req, res, next) {
   try {
     const { title, category, amount, type, date, note } = req.body;
 
@@ -136,13 +131,11 @@ async function createRecord(req, res) {
       data: newRecord
     });
   } catch (error) {
-    res.status(500).json({
-      message: "Could not create record"
-    });
+    next(createError("Could not create record"));
   }
 }
 
-async function updateRecord(req, res) {
+async function updateRecord(req, res, next) {
   try {
     const record = await FinancialRecord.findOne(getRecordFilter(req, {
       _id: req.params.id,
@@ -150,9 +143,7 @@ async function updateRecord(req, res) {
     }));
 
     if (!record) {
-      return res.status(404).json({
-        message: "Record not found"
-      });
+      return next(createError("Record not found", 404));
     }
 
     const { title, category, amount, type, date, note } = req.body;
@@ -171,13 +162,11 @@ async function updateRecord(req, res) {
       data: record
     });
   } catch (error) {
-    res.status(400).json({
-      message: "Could not update record"
-    });
+    next(createError("Could not update record", 400));
   }
 }
 
-async function deleteRecord(req, res) {
+async function deleteRecord(req, res, next) {
   try {
     const deletedRecord = await FinancialRecord.findOne(getRecordFilter(req, {
       _id: req.params.id,
@@ -185,9 +174,7 @@ async function deleteRecord(req, res) {
     }));
 
     if (!deletedRecord) {
-      return res.status(404).json({
-        message: "Record not found"
-      });
+      return next(createError("Record not found", 404));
     }
 
     // Soft delete is used so the old data is not fully lost.
@@ -200,9 +187,31 @@ async function deleteRecord(req, res) {
       data: deletedRecord
     });
   } catch (error) {
-    res.status(400).json({
-      message: "Could not delete record"
+    next(createError("Could not delete record", 400));
+  }
+}
+
+async function restoreRecord(req, res, next) {
+  try {
+    const record = await FinancialRecord.findOne({
+      _id: req.params.id,
+      isDeleted: true
     });
+
+    if (!record) {
+      return next(createError("Deleted record not found", 404));
+    }
+
+    record.isDeleted = false;
+    record.deletedAt = null;
+    await record.save();
+
+    res.json({
+      message: "Record restored successfully",
+      data: record
+    });
+  } catch (error) {
+    next(createError("Could not restore record", 400));
   }
 }
 
@@ -212,6 +221,7 @@ module.exports = {
   createRecord,
   updateRecord,
   deleteRecord,
+  restoreRecord,
   getRecordFilter,
   buildListFilter,
   buildAppliedFilters

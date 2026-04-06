@@ -5,7 +5,8 @@ const {
   getSingleRecord,
   createRecord,
   updateRecord,
-  deleteRecord
+  deleteRecord,
+  restoreRecord
 } = require("../controllers/recordController");
 const authMiddleware = require("../middleware/authMiddleware");
 const roleMiddleware = require("../middleware/roleMiddleware");
@@ -20,5 +21,6 @@ router.get("/:id", roleMiddleware(["Viewer", "Analyst", "Admin"]), getSingleReco
 router.post("/", roleMiddleware(["Analyst", "Admin"]), validateRecord, createRecord);
 router.put("/:id", roleMiddleware(["Analyst", "Admin"]), validateRecord, updateRecord);
 router.delete("/:id", roleMiddleware(["Admin"]), deleteRecord);
+router.patch("/:id/restore", roleMiddleware(["Admin"]), restoreRecord);
 
 module.exports = router;

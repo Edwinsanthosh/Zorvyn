@@ -9,6 +9,7 @@ const passSummary = document.getElementById("passSummary");
 const failSummary = document.getElementById("failSummary");
 
 let token = localStorage.getItem("token") || "";
+let refreshToken = localStorage.getItem("refreshToken") || "";
 let currentUser = JSON.parse(localStorage.getItem("currentUser") || "null");
 let lastCreatedRecordId = "";
 
@@ -29,18 +30,26 @@ function updateAuthView() {
 function saveAuthState() {
   return {
     token,
+    refreshToken,
     currentUser
   };
 }
 
 function restoreAuthState(savedState) {
   token = savedState.token;
+  refreshToken = savedState.refreshToken;
   currentUser = savedState.currentUser;
 
   if (token) {
     localStorage.setItem("token", token);
   } else {
     localStorage.removeItem("token");
+  }
+
+  if (refreshToken) {
+    localStorage.setItem("refreshToken", refreshToken);
+  } else {
+    localStorage.removeItem("refreshToken");
   }
 
   if (currentUser) {
@@ -50,6 +59,16 @@ function restoreAuthState(savedState) {
   }
 
   updateAuthView();
+}
+
+function setRefreshToken(nextRefreshToken) {
+  refreshToken = nextRefreshToken || "";
+
+  if (refreshToken) {
+    localStorage.setItem("refreshToken", refreshToken);
+  } else {
+    localStorage.removeItem("refreshToken");
+  }
 }
 
 function showResult(data, ok = true, message = "Request complete") {
@@ -73,6 +92,17 @@ async function apiCall(url, options = {}) {
 
   const data = await response.json();
 
+  if (response.status === 401 && refreshToken && !options._retryAfterRefresh) {
+    const refreshed = await tryRefreshToken();
+
+    if (refreshed) {
+      return apiCall(url, {
+        ...options,
+        _retryAfterRefresh: true
+      });
+    }
+  }
+
   if (!response.ok) {
     showResult(data, false, data.message || "Request failed");
     const error = new Error(data.message || "Request failed");
@@ -83,6 +113,48 @@ async function apiCall(url, options = {}) {
 
   showResult(data, true, data.message || `${options.method || "GET"} success`);
   return data;
+}
+
+async function tryRefreshToken() {
+  try {
+    const response = await fetch("/api/auth/refresh", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ refreshToken })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      setRefreshToken("");
+      token = "";
+      currentUser = null;
+      localStorage.removeItem("token");
+      localStorage.removeItem("currentUser");
+      updateAuthView();
+      showResult(data, false, "Session expired. Please login again");
+      return false;
+    }
+
+    token = data.token;
+    setRefreshToken(data.refreshToken);
+    currentUser = data.user;
+    localStorage.setItem("token", token);
+    localStorage.setItem("currentUser", JSON.stringify(currentUser));
+    updateAuthView();
+    return true;
+  } catch (error) {
+    setRefreshToken("");
+    token = "";
+    currentUser = null;
+    localStorage.removeItem("token");
+    localStorage.removeItem("currentUser");
+    updateAuthView();
+    showResult({ message: "Could not refresh token" }, false, "Session expired");
+    return false;
+  }
 }
 
 async function pingApi() {
@@ -99,6 +171,7 @@ async function loginUser(email, password) {
   });
 
   token = data.token;
+  setRefreshToken(data.refreshToken);
   currentUser = data.user;
   localStorage.setItem("token", token);
   localStorage.setItem("currentUser", JSON.stringify(currentUser));
@@ -146,6 +219,7 @@ const testCases = [
       });
 
       token = data.token;
+      setRefreshToken(data.refreshToken);
       currentUser = data.user;
       updateAuthView();
 
@@ -532,6 +606,7 @@ document.getElementById("pingApiButton").addEventListener("click", async () => {
 
 document.getElementById("clearTokenButton").addEventListener("click", () => {
   token = "";
+  setRefreshToken("");
   currentUser = null;
   localStorage.removeItem("token");
   localStorage.removeItem("currentUser");

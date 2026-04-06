@@ -2,6 +2,7 @@ const currentUserText = document.getElementById("currentUserText");
 const currentTokenText = document.getElementById("currentTokenText");
 
 let token = localStorage.getItem("token") || "";
+let refreshToken = localStorage.getItem("refreshToken") || "";
 let currentUser = JSON.parse(localStorage.getItem("currentUser") || "null");
 let lastCreatedRecordId = "";
 
@@ -29,6 +30,12 @@ function setStoredAuth(nextToken, nextUser) {
     localStorage.removeItem("token");
   }
 
+  if (refreshToken) {
+    localStorage.setItem("refreshToken", refreshToken);
+  } else {
+    localStorage.removeItem("refreshToken");
+  }
+
   if (currentUser) {
     localStorage.setItem("currentUser", JSON.stringify(currentUser));
   } else {
@@ -36,6 +43,16 @@ function setStoredAuth(nextToken, nextUser) {
   }
 
   updateAuthView();
+}
+
+function setRefreshToken(nextRefreshToken) {
+  refreshToken = nextRefreshToken || "";
+
+  if (refreshToken) {
+    localStorage.setItem("refreshToken", refreshToken);
+  } else {
+    localStorage.removeItem("refreshToken");
+  }
 }
 
 function showEndpointResult(resultId, data, ok = true, message = "Request complete") {
@@ -109,6 +126,17 @@ async function apiCall(url, resultId, options = {}) {
 
   const data = await response.json();
 
+  if (response.status === 401 && refreshToken && !options._retryAfterRefresh) {
+    const refreshed = await tryRefreshToken(resultId);
+
+    if (refreshed) {
+      return apiCall(url, resultId, {
+        ...options,
+        _retryAfterRefresh: true
+      });
+    }
+  }
+
   if (!response.ok) {
     showEndpointResult(resultId, data, false, data.message || "Request failed");
     const error = new Error(data.message || "Request failed");
@@ -121,6 +149,36 @@ async function apiCall(url, resultId, options = {}) {
   return data;
 }
 
+async function tryRefreshToken(resultId) {
+  try {
+    const response = await fetch("/api/auth/refresh", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ refreshToken })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      setRefreshToken("");
+      setStoredAuth("", null);
+      showEndpointResult(resultId, data, false, "Session expired. Please login again");
+      return false;
+    }
+
+    setRefreshToken(data.refreshToken);
+    setStoredAuth(data.token, data.user);
+    return true;
+  } catch (error) {
+    setRefreshToken("");
+    setStoredAuth("", null);
+    showEndpointResult(resultId, { message: "Could not refresh token" }, false, "Session expired");
+    return false;
+  }
+}
+
 async function loginUser(email, password, resultId) {
   const data = await apiCall("/api/auth/login", resultId, {
     method: "POST",
@@ -130,6 +188,7 @@ async function loginUser(email, password, resultId) {
     body: JSON.stringify({ email, password })
   });
 
+  setRefreshToken(data.refreshToken);
   setStoredAuth(data.token, data.user);
   return data;
 }
@@ -145,6 +204,7 @@ document.querySelectorAll(".quick-login").forEach((button) => {
 });
 
 document.getElementById("clearTokenButton").addEventListener("click", () => {
+  setRefreshToken("");
   setStoredAuth("", null);
   showEndpointResult("loginResult", { message: "Token cleared from browser storage" }, true, "Token cleared");
 });
@@ -166,6 +226,7 @@ document.getElementById("registerForm").addEventListener("submit", async (event)
       })
     });
 
+    setRefreshToken(data.refreshToken);
     setStoredAuth(data.token, data.user);
   } catch (error) {
     console.log(error.message);

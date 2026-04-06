@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Zorvyn API Docs</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <div class="brand">
+          <p class="brand-tag">Zorvyn</p>
+          <h1>API Docs</h1>
+          <p class="sidebar-copy">
+            Simple reference page for the finance dashboard backend endpoints.
+          </p>
+        </div>
+
+        <div class="sidebar-box">
+          <p class="box-title">Base URL</p>
+          <p class="token-preview">http://localhost:5000</p>
+        </div>
+
+        <nav class="sidebar-nav">
+          <a href="./index.html">Home</a>
+          <a href="./tests.html">Visual Testcases</a>
+          <a href="./api-tester.html">Custom API Tester</a>
+          <a href="#auth">Auth</a>
+          <a href="#users">Users</a>
+          <a href="#records">Records</a>
+          <a href="#dashboard">Dashboard</a>
+        </nav>
+      </aside>
+
+      <main class="main-content">
+        <header class="hero-card">
+          <div>
+            <p class="small-label">Reference</p>
+            <h2>Finance dashboard API documentation</h2>
+            <p class="hero-copy">
+              This page documents the available routes, access rules, common request bodies, and query parameters.
+            </p>
+          </div>
+        </header>
+
+        <section id="auth" class="panel">
+          <div class="panel-head">
+            <div>
+              <p class="small-label">Section 1</p>
+              <h3>Auth APIs</h3>
+            </div>
+          </div>
+
+          <div class="toggle-api-list">
+            <details class="toggle-api-item" open>
+              <summary class="toggle-api-summary">
+                <span class="method post">POST</span>
+                <span class="path">/api/auth/register</span>
+                <span class="summary-text">Register a new user</span>
+              </summary>
+              <div class="toggle-api-body">
+                <p class="api-copy">Creates a user and returns both access token and refresh token.</p>
+                <pre class="endpoint-result">{
+  "name": "Meena",
+  "email": "meena@example.com",
+  "password": "meena123",
+  "role": "Viewer"
+}</pre>
+              </div>
+            </details>
+
+            <details class="toggle-api-item">
+              <summary class="toggle-api-summary">
+                <span class="method post">POST</span>
+                <span class="path">/api/auth/login</span>
+                <span class="summary-text">Login user</span>
+              </summary>
+              <div class="toggle-api-body">
+                <pre class="endpoint-result">{
+  "email": "nivetha@example.com",
+  "password": "nivetha123"
+}</pre>
+              </div>
+            </details>
+
+            <details class="toggle-api-item">
+              <summary class="toggle-api-summary">
+                <span class="method post">POST</span>
+                <span class="path">/api/auth/refresh</span>
+                <span class="summary-text">Refresh expired access token</span>
+              </summary>
+              <div class="toggle-api-body">
+                <pre class="endpoint-result">{
+  "refreshToken": "your_refresh_token_here"
+}</pre>
+              </div>
+            </details>
+
+            <details class="toggle-api-item">
+              <summary class="toggle-api-summary">
+                <span class="method post">POST</span>
+                <span class="path">/api/auth/logout</span>
+                <span class="summary-text">Clear refresh token for current session</span>
+              </summary>
+              <div class="toggle-api-body">
+                <pre class="endpoint-result">{
+  "refreshToken": "your_refresh_token_here"
+}</pre>
+              </div>
+            </details>
+          </div>
+        </section>
+
+        <section id="users" class="panel">
+          <div class="panel-head">
+            <div>
+              <p class="small-label">Section 2</p>
+              <h3>User Management APIs</h3>
+            </div>
+            <span class="plain-note">Admin only</span>
+          </div>
+
+          <div class="toggle-api-list">
+            <details class="toggle-api-item">
+              <summary class="toggle-api-summary">
+                <span class="method get">GET</span>
+                <span class="path">/api/users</span>
+                <span class="summary-text">List all users</span>
+              </summary>
+              <div class="toggle-api-body">
+                <p class="api-copy">Returns all users except passwords.</p>
+              </div>
+            </details>
+
+            <details class="toggle-api-item">
+              <summary class="toggle-api-summary">
+                <span class="method post">POST</span>
+                <span class="path">/api/users</span>
+                <span class="summary-text">Create user by admin</span>
+              </summary>
+              <div class="toggle-api-body">
+                <pre class="endpoint-result">{
+  "name": "Priya",
+  "email": "priya@example.com",
+  "password": "priya123",
+  "role": "Analyst",
+  "status": "active"
+}</pre>
+              </div>
+            </details>
+
+            <details class="toggle-api-item">
+              <summary class="toggle-api-summary">
+                <span class="method patch">PATCH</span>
+                <span class="path">/api/users/:id/role</span>
+                <span class="summary-text">Update role</span>
+              </summary>
+              <div class="toggle-api-body">
+                <pre class="endpoint-result">{
+  "role": "Admin"
+}</pre>
+              </div>
+            </details>
+
+            <details class="toggle-api-item">
+              <summary class="toggle-api-summary">
+                <span class="method patch">PATCH</span>
+                <span class="path">/api/users/:id/status</span>
+                <span class="summary-text">Update status</span>
+              </summary>
+              <div class="toggle-api-body">
+                <pre class="endpoint-result">{
+  "status": "inactive"
+}</pre>
+              </div>
+            </details>
+          </div>
+        </section>
+
+        <section id="records" class="panel">
+          <div class="panel-head">
+            <div>
+              <p class="small-label">Section 3</p>
+              <h3>Record APIs</h3>
+            </div>
+            <span class="plain-note">Protected routes</span>
+          </div>
+
+          <div class="toggle-api-list">
+            <details class="toggle-api-item" open>
+              <summary class="toggle-api-summary">
+                <span class="method get">GET</span>
+                <span class="path">/api/records</span>
+                <span class="summary-text">List records with pagination and filters</span>
+              </summary>
+              <div class="toggle-api-body">
+                <p class="api-copy">Supported query params: `page`, `limit`, `category`, `type`, `date`, `fromDate`, `toDate`, `minAmount`, `maxAmount`.</p>
+                <pre class="endpoint-result">/api/records?page=1&limit=5&type=income&fromDate=2026-04-01&toDate=2026-04-10</pre>
+              </div>
+            </details>
+
+            <details class="toggle-api-item">
+              <summary class="toggle-api-summary">
+                <span class="method get">GET</span>
+                <span class="path">/api/records/:id</span>
+                <span class="summary-text">Get one record</span>
+              </summary>
+              <div class="toggle-api-body">
+                <p class="api-copy">Viewer can only access their own record. Analyst and Admin can access broader data.</p>
+              </div>
+            </details>
+
+            <details class="toggle-api-item">
+              <summary class="toggle-api-summary">
+                <span class="method post">POST</span>
+                <span class="path">/api/records</span>
+                <span class="summary-text">Create record</span>
+              </summary>
+              <div class="toggle-api-body">
+                <p class="api-copy">Allowed roles: Analyst, Admin</p>
+                <pre class="endpoint-result">{
+  "title": "April Revenue",
+  "category": "Revenue",
+  "amount": 45000,
+  "type": "income",
+  "date": "2026-04-04",
+  "note": "Collected from branch"
+}</pre>
+              </div>
+            </details>
+
+            <details class="toggle-api-item">
+              <summary class="toggle-api-summary">
+                <span class="method put">PUT</span>
+                <span class="path">/api/records/:id</span>
+                <span class="summary-text">Update record</span>
+              </summary>
+              <div class="toggle-api-body">
+                <p class="api-copy">Allowed roles: Analyst, Admin</p>
+              </div>
+            </details>
+
+            <details class="toggle-api-item">
+              <summary class="toggle-api-summary">
+                <span class="method delete">DELETE</span>
+                <span class="path">/api/records/:id</span>
+                <span class="summary-text">Soft delete record</span>
+              </summary>
+              <div class="toggle-api-body">
+                <p class="api-copy">Allowed role: Admin. Sets `isDeleted` to `true`.</p>
+              </div>
+            </details>
+
+            <details class="toggle-api-item">
+              <summary class="toggle-api-summary">
+                <span class="method patch">PATCH</span>
+                <span class="path">/api/records/:id/restore</span>
+                <span class="summary-text">Restore soft-deleted record</span>
+              </summary>
+              <div class="toggle-api-body">
+                <p class="api-copy">Allowed role: Admin. Sets `isDeleted` back to `false` and clears `deletedAt`.</p>
+              </div>
+            </details>
+          </div>
+        </section>
+
+        <section id="dashboard" class="panel">
+          <div class="panel-head">
+            <div>
+              <p class="small-label">Section 4</p>
+              <h3>Dashboard APIs</h3>
+            </div>
+          </div>
+
+          <div class="toggle-api-list">
+            <details class="toggle-api-item">
+              <summary class="toggle-api-summary">
+                <span class="method get">GET</span>
+                <span class="path">/api/dashboard/summary</span>
+                <span class="summary-text">Summary totals</span>
+              </summary>
+              <div class="toggle-api-body">
+                <p class="api-copy">Returns total income, total expense, total balance, total records, and category breakdown.</p>
+              </div>
+            </details>
+
+            <details class="toggle-api-item">
+              <summary class="toggle-api-summary">
+                <span class="method get">GET</span>
+                <span class="path">/api/dashboard/categories</span>
+                <span class="summary-text">Category totals</span>
+              </summary>
+              <div class="toggle-api-body">
+                <p class="api-copy">Returns grouped income, expense, and total values per category.</p>
+              </div>
+            </details>
+
+            <details class="toggle-api-item">
+              <summary class="toggle-api-summary">
+                <span class="method get">GET</span>
+                <span class="path">/api/dashboard/recent-activity</span>
+                <span class="summary-text">Recent activity feed</span>
+              </summary>
+              <div class="toggle-api-body">
+                <p class="api-copy">Optional query param: `limit`</p>
+              </div>
+            </details>
+
+            <details class="toggle-api-item">
+              <summary class="toggle-api-summary">
+                <span class="method get">GET</span>
+                <span class="path">/api/dashboard/trends</span>
+                <span class="summary-text">Monthly or weekly trends</span>
+              </summary>
+              <div class="toggle-api-body">
+                <p class="api-copy">Optional query param: `type=monthly` or `type=weekly`</p>
+              </div>
+            </details>
+          </div>
+        </section>
+      </main>
+    </div>
+  </body>
+</html>

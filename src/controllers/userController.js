@@ -1,8 +1,9 @@
 const bcrypt = require("bcryptjs");
 
 const User = require("../models/User");
+const createError = require("../utils/createError");
 
-async function getAllUsers(req, res) {
+async function getAllUsers(req, res, next) {
   try {
     const users = await User.find().select("-password").sort({ createdAt: -1 });
 
@@ -11,22 +12,18 @@ async function getAllUsers(req, res) {
       data: users
     });
   } catch (error) {
-    res.status(500).json({
-      message: "Could not fetch users"
-    });
+    next(createError("Could not fetch users"));
   }
 }
 
-async function createUserByAdmin(req, res) {
+async function createUserByAdmin(req, res, next) {
   try {
     const { name, email, password, role, status } = req.body;
 
     const existingUser = await User.findOne({ email });
 
     if (existingUser) {
-      return res.status(400).json({
-        message: "User with this email already exists"
-      });
+      return next(createError("User with this email already exists", 400));
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -50,20 +47,16 @@ async function createUserByAdmin(req, res) {
       }
     });
   } catch (error) {
-    res.status(500).json({
-      message: "Could not create user"
-    });
+    next(createError("Could not create user"));
   }
 }
 
-async function updateUserRole(req, res) {
+async function updateUserRole(req, res, next) {
   try {
     const user = await User.findById(req.params.id);
 
     if (!user) {
-      return res.status(404).json({
-        message: "User not found"
-      });
+      return next(createError("User not found", 404));
     }
 
     user.role = req.body.role;
@@ -80,20 +73,16 @@ async function updateUserRole(req, res) {
       }
     });
   } catch (error) {
-    res.status(400).json({
-      message: "Could not update user role"
-    });
+    next(createError("Could not update user role", 400));
   }
 }
 
-async function updateUserStatus(req, res) {
+async function updateUserStatus(req, res, next) {
   try {
     const user = await User.findById(req.params.id);
 
     if (!user) {
-      return res.status(404).json({
-        message: "User not found"
-      });
+      return next(createError("User not found", 404));
     }
 
     user.status = req.body.status;
@@ -110,9 +99,7 @@ async function updateUserStatus(req, res) {
       }
     });
   } catch (error) {
-    res.status(400).json({
-      message: "Could not update user status"
-    });
+    next(createError("Could not update user status", 400));
   }
 }
 

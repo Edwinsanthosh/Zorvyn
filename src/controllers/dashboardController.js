@@ -1,7 +1,8 @@
 const FinancialRecord = require("../models/FinancialRecord");
 const { getRecordFilter } = require("./recordController");
+const createError = require("../utils/createError");
 
-async function getDashboardSummary(req, res) {
+async function getDashboardSummary(req, res, next) {
   try {
     const financialRecords = await FinancialRecord.find(
       getRecordFilter(req, { isDeleted: false })
@@ -37,13 +38,11 @@ async function getDashboardSummary(req, res) {
       categoryBreakdown
     });
   } catch (error) {
-    res.status(500).json({
-      message: "Could not load dashboard summary"
-    });
+    next(createError("Could not load dashboard summary"));
   }
 }
 
-async function getCategoryTotals(req, res) {
+async function getCategoryTotals(req, res, next) {
   try {
     const financialRecords = await FinancialRecord.find(
       getRecordFilter(req, { isDeleted: false })
@@ -72,13 +71,11 @@ async function getCategoryTotals(req, res) {
       categoryTotals
     });
   } catch (error) {
-    res.status(500).json({
-      message: "Could not load category totals"
-    });
+    next(createError("Could not load category totals"));
   }
 }
 
-async function getRecentActivity(req, res) {
+async function getRecentActivity(req, res, next) {
   try {
     const limit = Number(req.query.limit) || 5;
 
@@ -94,13 +91,11 @@ async function getRecentActivity(req, res) {
       activities: recentRecords
     });
   } catch (error) {
-    res.status(500).json({
-      message: "Could not load recent activity"
-    });
+    next(createError("Could not load recent activity"));
   }
 }
 
-async function getTrendData(req, res) {
+async function getTrendData(req, res, next) {
   try {
     const type = req.query.type || "monthly";
     const financialRecords = await FinancialRecord.find(
@@ -156,9 +151,7 @@ async function getTrendData(req, res) {
       data: trendArray
     });
   } catch (error) {
-    res.status(500).json({
-      message: "Could not load trend data"
-    });
+    next(createError("Could not load trend data"));
   }
 }
 

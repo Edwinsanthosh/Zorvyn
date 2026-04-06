@@ -1,3 +1,5 @@
+const createError = require("../utils/createError");
+
 function isValidEmail(email) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
@@ -10,45 +12,31 @@ function validateRecord(req, res, next) {
   const { title, category, amount, type, date } = req.body;
 
   if (!title || !category || amount === undefined || !type || !date) {
-    return res.status(400).json({
-      message: "title, category, amount, type and date are required"
-    });
+    return next(createError("title, category, amount, type and date are required", 400));
   }
 
   if (typeof title !== "string" || typeof category !== "string") {
-    return res.status(400).json({
-      message: "title and category should be text"
-    });
+    return next(createError("title and category should be text", 400));
   }
 
   if (!title.trim() || !category.trim()) {
-    return res.status(400).json({
-      message: "title and category should not be empty"
-    });
+    return next(createError("title and category should not be empty", 400));
   }
 
   if (typeof Number(amount) !== "number" || Number.isNaN(Number(amount))) {
-    return res.status(400).json({
-      message: "amount should be a valid number"
-    });
+    return next(createError("amount should be a valid number", 400));
   }
 
   if (Number(amount) < 0) {
-    return res.status(400).json({
-      message: "amount should be zero or more"
-    });
+    return next(createError("amount should be zero or more", 400));
   }
 
   if (type !== "income" && type !== "expense") {
-    return res.status(400).json({
-      message: "type should be income or expense"
-    });
+    return next(createError("type should be income or expense", 400));
   }
 
   if (!isValidDate(date)) {
-    return res.status(400).json({
-      message: "date should be valid"
-    });
+    return next(createError("date should be valid", 400));
   }
 
   next();
@@ -58,15 +46,11 @@ function validateLogin(req, res, next) {
   const { email, password } = req.body;
 
   if (!email || !password) {
-    return res.status(400).json({
-      message: "email and password are required"
-    });
+    return next(createError("email and password are required", 400));
   }
 
   if (!isValidEmail(email)) {
-    return res.status(400).json({
-      message: "email format is invalid"
-    });
+    return next(createError("email format is invalid", 400));
   }
 
   next();
@@ -76,39 +60,27 @@ function validateRegister(req, res, next) {
   const { name, email, password, role, status } = req.body;
 
   if (!name || !email || !password) {
-    return res.status(400).json({
-      message: "name, email and password are required"
-    });
+    return next(createError("name, email and password are required", 400));
   }
 
   if (!name.trim()) {
-    return res.status(400).json({
-      message: "name should not be empty"
-    });
+    return next(createError("name should not be empty", 400));
   }
 
   if (!isValidEmail(email)) {
-    return res.status(400).json({
-      message: "email format is invalid"
-    });
+    return next(createError("email format is invalid", 400));
   }
 
   if (password.length < 6) {
-    return res.status(400).json({
-      message: "password should have at least 6 characters"
-    });
+    return next(createError("password should have at least 6 characters", 400));
   }
 
   if (role && role !== "Viewer" && role !== "Analyst" && role !== "Admin") {
-    return res.status(400).json({
-      message: "role should be Viewer, Analyst or Admin"
-    });
+    return next(createError("role should be Viewer, Analyst or Admin", 400));
   }
 
   if (status && status !== "active" && status !== "inactive") {
-    return res.status(400).json({
-      message: "status should be active or inactive"
-    });
+    return next(createError("status should be active or inactive", 400));
   }
 
   next();
@@ -118,15 +90,11 @@ function validateUserRoleUpdate(req, res, next) {
   const { role } = req.body;
 
   if (!role) {
-    return res.status(400).json({
-      message: "role is required"
-    });
+    return next(createError("role is required", 400));
   }
 
   if (role !== "Viewer" && role !== "Analyst" && role !== "Admin") {
-    return res.status(400).json({
-      message: "role should be Viewer, Analyst or Admin"
-    });
+    return next(createError("role should be Viewer, Analyst or Admin", 400));
   }
 
   next();
@@ -136,15 +104,11 @@ function validateUserStatusUpdate(req, res, next) {
   const { status } = req.body;
 
   if (!status) {
-    return res.status(400).json({
-      message: "status is required"
-    });
+    return next(createError("status is required", 400));
   }
 
   if (status !== "active" && status !== "inactive") {
-    return res.status(400).json({
-      message: "status should be active or inactive"
-    });
+    return next(createError("status should be active or inactive", 400));
   }
 
   next();

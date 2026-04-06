@@ -16,6 +16,7 @@ This project is intentionally kept practical and easy to follow. It includes aut
 ## Main Features
 
 - JWT-based register and login
+- Refresh token flow for renewing access tokens
 - Passwords stored in hashed format using `bcryptjs`
 - User roles:
   - `Viewer`
@@ -27,14 +28,17 @@ This project is intentionally kept practical and easy to follow. It includes aut
   - `inactive`
 - Financial record CRUD
 - Soft delete for records
+- Restore API for soft-deleted records
 - Dashboard aggregation APIs
 - Role-based route protection
 - Basic request validation
+- Centralized error handler
 - Pagination for records
 - Filtering for records
 - In-memory rate limiting
 - Seed data for users and records
 - Lightweight test runner
+- Swagger API documentation
 - Frontend pages for:
   - visual testcase view
   - custom API testing
@@ -96,6 +100,7 @@ Create a `.env` file:
 PORT=5000
 MONGODB_URL=mongodb://127.0.0.1:27017/zorvyn
 JWT_SECRET=simple_secret_key
+REFRESH_SECRET=refresh_secret_key
 ```
 
 Run in development:
@@ -116,6 +121,12 @@ Run tests:
 npm test
 ```
 
+If Swagger dependencies were just added in your local copy, run:
+
+```bash
+npm install
+```
+
 Server default URL:
 
 ```text
@@ -128,6 +139,8 @@ The backend also serves a small frontend from the `public` folder.
 
 - Home page:
   - `http://localhost:5000/`
+- Swagger docs page:
+  - `http://localhost:5000/api-docs`
 - Visual testcase page:
   - `http://localhost:5000/tests.html`
 - Custom API tester page:
@@ -155,6 +168,7 @@ Notes:
 - `role` is optional
 - default role is `Viewer`
 - password is hashed before saving
+- response also returns a refresh token
 
 ### Login
 
@@ -173,6 +187,36 @@ Notes:
 
 - inactive users cannot log in
 - successful login returns JWT token and user details
+- login also returns a refresh token
+
+### Refresh token
+
+`POST /api/auth/refresh`
+
+Sample body:
+
+```json
+{
+  "refreshToken": "your_refresh_token_here"
+}
+```
+
+Returns:
+
+- new access token
+- new refresh token
+
+### Logout
+
+`POST /api/auth/logout`
+
+Sample body:
+
+```json
+{
+  "refreshToken": "your_refresh_token_here"
+}
+```
 
 ## Roles
 
@@ -326,6 +370,19 @@ This is a soft delete. The document stays in the database, but:
 - `isDeleted` becomes `true`
 - `deletedAt` is set
 
+### Restore deleted record
+
+`PATCH /api/records/:id/restore`
+
+Allowed role:
+
+- `Admin`
+
+This restores a soft-deleted record by setting:
+
+- `isDeleted` back to `false`
+- `deletedAt` back to `null`
+
 ## Dashboard APIs
 
 All dashboard routes require login.
@@ -448,12 +505,10 @@ The tests cover areas like:
 - Passwords are hashed before storing in MongoDB.
 - Rate limiting is simple and stored in memory.
 - The frontend is only for demo/testing and is not a production UI.
+- Errors now go through one central error middleware so responses stay more consistent.
 
 ## Limitations
 
-- No refresh token flow
-- No centralized error handler
-- No restore API for soft-deleted records
 - Rate limiting resets when the server restarts
 - Tests are lightweight and not full DB integration tests
 - Date is stored as a string in records, which is simple for demo use but not ideal for larger real-world systems
